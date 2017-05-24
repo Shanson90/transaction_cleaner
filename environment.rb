@@ -1,0 +1,1 @@
+DATABASE_FILE = '/Users/swilliamson/Personal Master/Code/transaction_cleaner/dev.db'
