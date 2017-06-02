@@ -2,6 +2,7 @@ require_relative '../modules/db_interface'
 
 class Rule
   TABLE_NAME = 'rules'
+  MAX_FIELDS = 3
 
   def initialize
     @db = DBInterface.new
