@@ -8,7 +8,7 @@ class Rule
     @db = DBInterface.new
   end
 
-  def add(match_pattern, fields_and_values)
+  def add(match_pattern, fields_and_values) # match_pattern is regExp. and fields & values is a hash
     num = 1
     row = {
         'match_pattern' => match_pattern.to_s
@@ -19,7 +19,7 @@ class Rule
       num += 1
     end
     if num > MAX_FIELDS
-      Raise(ArgumentError, "Currently only #{MAX_FIELDS} fields are supported.")
+      raise(ArgumentError, "Currently only #{MAX_FIELDS} fields are supported.")
     end
     @db.add_row(TABLE_NAME, row)
   end
