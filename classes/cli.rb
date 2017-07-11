@@ -17,6 +17,8 @@ Regular Expression: /\\sPhilly\\s/
 1) Field: city , Value: Philadelphia
 2) Field: state , Value: PA                   (optional - only one field/value pair is required for a given match pattern)
 3) Field: reasonable location , Value: true   (optional - you can set up to 3 field/value pairs for a given match pattern)
+
+Ok... here we go. First enter the match pattern as a regular expression.
 input
   WELCOME_MSG = <<input
 Hi. I\'m TC. I take dirty transaction data from banks and credit card companies and turn it into one big CSV 
@@ -29,7 +31,16 @@ input
   def initialize
     system 'clear' or system 'cls'
     puts WELCOME_MSG
-    run_cli
+  end
+
+  def run_cli
+    input = ''
+    until input == 'exit'
+      input = gets.chomp.downcase
+      puts "\n"
+      send input
+      puts "\nCommand?".colorize(:light_cyan)
+    end
   end
 
 
@@ -44,18 +55,16 @@ input
       puts method.to_s.colorize(:light_cyan) unless method.to_s.include?('=')
     end
     puts 'exit'.colorize(:light_cyan)
-    new_line
   end
 
 
   # View variables
   def date
     if @date.nil?
-      puts 'The date has not been set'.colorize :red
+      puts 'The date has not been set.'.colorize :red
       puts "(try #{'set_date'.colorize :light_cyan} to set one)"
-      puts "\n"
     else
-      puts @date_str
+      puts "date: #{@date_str}"
     end
   end
 
@@ -72,9 +81,8 @@ input
   def output_file
     if @output_file_path.nil?
       name_output
-    else
-      puts "output file: #{@output_file_path}"
     end
+    puts "output file: #{@output_file_path}"
   end
 
 
@@ -82,7 +90,7 @@ input
   def set_date
     @date = get_date
     @date_str = @date.strftime('%Y.%m.%d')
-    puts "date: #{@date_str}"
+    date
   end
 
   def set_input_file
@@ -108,7 +116,6 @@ input
   # Manipulate rules
   def add_rule
     puts ADD_RULE_MSG.colorize :yellow
-    puts 'ok... here we go. First enter the match pattern as a regular expression.'
     regex = Regexp.new(gets.chomp)
     fields_and_values = get_fields_and_values
     @rule = Rule.new
@@ -126,28 +133,28 @@ input
 
   # Do work
   def process_input_file
+    input_file = Klean.new(@input_path)
+    input_file.import
 
+    rule = Rule.new
+    rules = rule.get_all_rules
+    input_file.apply_rules(rules)
+
+    clean_transactions = input_file.klean_transactions
+    output = CsvOutput.new("#{PRIMARY_DIR}#{YEAR}/#{MONTH}.#{DAY}/Citi_output.csv", clean_transactions)
+    output.create_csv
+
+    input_file
+    input_file.puts_data
   end
 
   private
-
-  def run_cli(input = '')
-    until input == 'exit'
-      input = gets.chomp.downcase
-      puts "\n"
-      send input
-    end
-  end
 
   # def method_missing(m)
   #   puts "Hmm, don't recognize that command... Try again?"
   #   help
   #   run_cli
   # end
-
-  def new_line
-    puts "\n"
-  end
 
   def get_input_dir
     puts DIR_MSG
@@ -173,12 +180,15 @@ input
   def get_fields_and_values
     raw_input = 'start'
     fields_and_values = {}
-    until raw_input == ''
+
+    until raw_input == '' || fields_and_values.length >= 3
       puts "Enter a single field-value pair in the format 'field:value'"
-      puts 'If you\'re done adding fields and values for this rule, just hit enter'
+      puts '(If you\'re done adding fields and values for this rule, just hit enter)'
       raw_input = gets.chomp
-      input = raw_input.split(':')
-      fields_and_values[input[0]] = input[1]
+      unless raw_input == ''
+        input = raw_input.split(':')
+        fields_and_values[input[0]] = input[1]
+      end
     end
     fields_and_values
   end
