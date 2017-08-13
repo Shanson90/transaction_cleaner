@@ -22,6 +22,6 @@ class DBInterface
   end
 
   def get_all_rows(table_name)
-    table = @db.execute( "select * from #{table_name}" )
+    @db.execute( "select * from #{table_name}" )
   end
 end
