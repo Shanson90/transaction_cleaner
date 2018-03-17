@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # ruby=2.3.3
-ruby '2.3.3'
+ruby '2.2.6'
 
 gem 'bundler', '~> 1.14'
 gem 'colorize', '~> 0.8'

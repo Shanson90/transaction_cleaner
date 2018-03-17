@@ -1,1 +1,1 @@
-DATABASE_FILE = '/Users/swilliamson/Personal Master/Code/transaction_cleaner/dev.db'
+DATABASE_FILE = 'C:\transaction_cleaner\dev.db'

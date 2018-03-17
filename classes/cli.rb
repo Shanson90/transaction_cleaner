@@ -1,4 +1,6 @@
 require 'colorize'
+require_relative '../classes/settings'
+
 class CLI
 
   DIR_MSG = 'Enter the path to the directory you want to use.'
@@ -31,6 +33,7 @@ input
   def initialize
     system 'clear' or system 'cls'
     puts WELCOME_MSG
+    @settings = Settings.new
   end
 
   def run_cli
@@ -38,7 +41,14 @@ input
     until input == 'exit'
       input = gets.chomp.downcase
       puts "\n"
-      send input
+
+      begin
+        send input
+      rescue NoMethodError
+        puts "Hmm, #{input} isn't a recognized command."
+        puts "Try again?"
+      end
+
       puts "\nCommand?".colorize(:light_cyan)
     end
   end
@@ -60,56 +70,50 @@ input
 
   # View variables
   def date
-    if @date.nil?
-      puts 'The date has not been set.'.colorize :red
-      puts "(try #{'set_date'.colorize :light_cyan} to set one)"
-    else
-      puts "date: #{@date_str}"
-    end
+    puts "The current date is: #{@settings.date.strftime('%Y.%m.%d')}"
+    puts "(try #{'set_date'.colorize :light_cyan} to change it)"
   end
 
   def input_file
-    if @input_path.nil?
+    if @settings.input_file.nil?
       puts 'The input file has not been set.'.colorize :red
       puts "(Try #{'set_input_file'.colorize(:light_cyan)} to set it)"
     else
-      puts "input file: #{@input_path}"
+      puts "input file: #{@settings.input_file}"
     end
     @input_path
   end
 
   def output_file
-    if @output_file_path.nil?
+    if @settings.output_file.nil?
       name_output
     end
-    puts "output file: #{@output_file_path}"
+    puts "output file: #{@settings.output_file}"
   end
 
 
   # Set variables
   def set_date
-    @date = get_date
-    @date_str = @date.strftime('%Y.%m.%d')
+    date = get_date
+    @settings.set_date(date)
+    @date_str = date.strftime('%Y.%m.%d')
     date
   end
 
   def set_input_file
     get_input_dir
     get_input_file_name
-    @input_path = "#{@dir}/#{@file}"
+    input_path = build_path(@dir, @file)
+    @settings.set_input_file(input_path)
     input_file
   end
 
   def name_output
     puts NAME_FILE_MSG
     output_file_word = gets.chomp
-    set_date
-    @output_file_name = "#{@date_str} #{output_file_word}"
-    if @dir == nil
-      get_input_dir
-    end
-    @output_file_path = "#{@dir}/#{@output_file_name}"
-    puts "output file: #{@output_file_path}"
+    output_file_name = "#{@settings.date.strftime('%Y.%m.%d')} #{output_file_word}"
+    @settings.set_output_file(build_path(@settings, output_file_name))
+    puts "output file: #{@settings.output_file}"
   end
 
 
@@ -133,7 +137,7 @@ input
 
   # Do work
   def process_input_file
-    input_file = Klean.new(@input_path)
+    input_file = Klean.new(@settings.input_file)
     input_file.import
 
     rule = Rule.new
@@ -141,7 +145,7 @@ input
     input_file.apply_rules(rules)
 
     clean_transactions = input_file.klean_transactions
-    output = CsvOutput.new("#{PRIMARY_DIR}#{YEAR}/#{MONTH}.#{DAY}/Citi_output.csv", clean_transactions)
+    output = CsvOutput.new(@settings.output_file, clean_transactions)
     output.create_csv
 
     input_file
@@ -175,6 +179,7 @@ input
       puts "\nUnable to parse date... try YYYY.MM.DD format.".colorize :yellow
       get_date
     end
+    date
   end
 
   def get_fields_and_values
@@ -191,6 +196,10 @@ input
       end
     end
     fields_and_values
+  end
+
+  def build_path(directory, file_name)
+    "#{directory}/#{file_name}"
   end
 
 end
