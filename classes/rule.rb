@@ -18,7 +18,7 @@ class Rule
       row["value#{num}"] = value.to_s
       num += 1
     end
-    if num > MAX_FIELDS
+    if num - 1 > MAX_FIELDS
       raise(ArgumentError, "Currently only #{MAX_FIELDS} fields are supported.")
     end
     @db.add_row(TABLE_NAME, row)
