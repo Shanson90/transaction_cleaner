@@ -3,7 +3,8 @@ require 'csv'
 class CsvOutput
 
   def initialize(file_name, data)
-    @name, @data = file_name, data
+    @name = "#{file_name}.csv"
+    @data = data
   end
 
   def create_csv

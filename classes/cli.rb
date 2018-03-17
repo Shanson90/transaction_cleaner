@@ -1,5 +1,7 @@
 require 'colorize'
 require_relative '../classes/settings'
+require_relative './klean'
+require_relative './csv_output'
 
 class CLI
 
@@ -97,7 +99,6 @@ input
     date = get_date
     @settings.set_date(date)
     @date_str = date.strftime('%Y.%m.%d')
-    date
   end
 
   def set_input_file
@@ -112,7 +113,7 @@ input
     puts NAME_FILE_MSG
     output_file_word = gets.chomp
     output_file_name = "#{@settings.date.strftime('%Y.%m.%d')} #{output_file_word}"
-    @settings.set_output_file(build_path(@settings, output_file_name))
+    @settings.set_output_file(build_path(File.dirname(@settings.input_file), output_file_name))
     puts "output file: #{@settings.output_file}"
   end
 
