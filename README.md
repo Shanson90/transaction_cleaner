@@ -24,16 +24,16 @@
  want to know how often you go out to eat Mon-Thurs? No way to get an answer from Mint. 
  
  Thus Transaction Cleaner. This tool will allow you (when it's finished) to drag and drop CSV files
- which will be parsed according to the rules YOU set up. Based on those rules, a new, "clean" CSV
+ which will be parsed according to the rules **YOU** set up. Based on those rules, a new, "clean" CSV
  will be produced containing all the data that could be gleaned from the CSVs you dragged and dropped.
  In addition, you'll get a handy Excel file that will take these CSVs and turn them into meaningful
  financial information. If you want to customize from there... The world is your oyster.
  
  ### Installation
  
- Currently, there is no interface for the code. However it does "work." If you're a programmer (particularly
- a rubyist) you can probably figure it out. Basically you'll need to clone the project, then install ruby if
- it's not already installed. After that, you'll need bundler, so paste this into your command line:
+ If you're a programmer (particularly a rubyist) you can probably figure it out. Basically you'll need to clone the 
+ project, then install ruby if it's not already installed. After that, you'll need bundler, so paste this into your 
+ command line:
  
  ```ruby
   gem install bundler
@@ -45,12 +45,18 @@
 Finally to run the project:
 
 ```ruby
-ruby program_flow.rb
+ruby run_cli.rb
 ```
 
-Right now you'll need to play with some variables to get it to do anything useful. You'll also need to
-edit the rules in the dev.db database. Soon, I'll have a command line interface you can use while I'm 
-finishing the front end drag and drop functionality. If you want to get involved, shoot me an email:
+I haven't built any kind of front end or UI for this thing yet, because I actually just want to 
+start using it as soon as I can. However I have hacked together a little command-line interface (CLI)
+ that works well enough for now. I'm still fleshing out some of my options for how to make this work
+ with **any** CSV file from any financial institution with little or zero manual work for the user, 
+ but it works great with my credit card transactions from Citi. Manipulating rules can be done 
+ through the CLI as well, and you're welcome to create your own database of rules, which is the idea, but
+ I've committed my whole DB in the project so you can see what rules should look like and how they work.
+ 
+ If you want to get involved, shoot me an email:
 
 ```
 shane.ryan.williamson@gmail.com
