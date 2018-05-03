@@ -41,17 +41,17 @@ input
   def run_cli
     input = ''
     until input == 'exit'
-      input = gets.chomp.downcase
-      puts "\n"
-
       begin
+        input = gets.chomp.downcase
+        puts "\n"
         send input
       rescue NoMethodError
         puts "Hmm, #{input} isn't a recognized command."
         puts "Try again?"
+        retry
       end
 
-      puts "\nCommand?".colorize(:light_cyan)
+      puts "\nCommand?".colorize(:cyan)
     end
   end
 
@@ -59,27 +59,25 @@ input
   # Display methods available to user
   def help
     puts HELP_MSG
-    if @methods == nil
-      @methods = CLI.public_instance_methods(false)
-    end
+    @methods ||= CLI.public_instance_methods(false)
 
     @methods.each do |method|
-      puts method.to_s.colorize(:light_cyan) unless method.to_s.include?('=')
+      puts method.to_s.colorize(:cyan) unless method.to_s.include?('=')
     end
-    puts 'exit'.colorize(:light_cyan)
+    puts 'exit'.colorize(:cyan)
   end
 
 
   # View variables
   def date
     puts "The current date is: #{@settings.date.strftime('%Y.%m.%d')}"
-    puts "(try #{'set_date'.colorize :light_cyan} to change it)"
+    puts "(try #{'set_date'.colorize :cyan} to change it)"
   end
 
   def input_file
     if @settings.input_file.nil?
       puts 'The input file has not been set.'.colorize :red
-      puts "(Try #{'set_input_file'.colorize(:light_cyan)} to set it)"
+      puts "(Try #{'set_input_file'.colorize(:cyan)} to set it)"
     else
       puts "input file: #{@settings.input_file}"
     end
