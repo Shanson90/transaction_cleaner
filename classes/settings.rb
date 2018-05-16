@@ -1,4 +1,4 @@
-require_relative '../modules/db_interface'
+require_relative 'db_interface'
 
 class Settings
 

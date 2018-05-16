@@ -30,6 +30,10 @@ class DBInterface
     @db.execute( "select * from #{table_name}" )
   end
 
+  def get_rows(table, column, value)
+    @db.execute( "select * from #{table} where #{column} = '#{value}'" )
+  end
+
   def get_top_row_with_col_names(table)
     sql = "SELECT * FROM #{table} LIMIT 1"
     column_names = @db.prepare(sql).columns

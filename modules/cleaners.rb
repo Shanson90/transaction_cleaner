@@ -39,7 +39,7 @@ module Cleaners
     false
   end
 
-  def squar?(word) # common truncation of city names with 'Square' in them, like 'Kennet Square'
+  def squar?(word) # common truncation of city names with 'Square' in them, like 'Kennett Square'
     word.downcase == 'squar'
   end
 

@@ -1,13 +1,13 @@
 class Citi
 
   def initialize(transactions, rules)
-    @all_transactions = transactions
+    @original_transactions = transactions
     @rules = rules
     @klean_transactions = []
   end
 
   def apply_rules(rules)
-    @all_transactions.each do |transaction|
+    @original_transactions.each do |transaction|
       @transaction = transaction
       rules.each do |rule|
         unless rule[:match_pattern].match(@transaction[:description]) == nil

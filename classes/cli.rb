@@ -1,7 +1,8 @@
 require 'colorize'
-require_relative '../classes/settings'
-require_relative './klean'
-require_relative './csv_output'
+require_relative 'settings'
+require_relative 'klean'
+require_relative 'csv_output'
+require_relative 'header'
 
 class CLI
 
@@ -13,11 +14,18 @@ class CLI
   HELP_MSG = 'Here is a list of available commands:'
   NAME_FILE_MSG = 'What would you like to name the output file?'
   ADD_RULE_MSG = <<input
-To add a rule, you'll need a match pattern (regular expression)
-and 1 to 3 fields you want to set with specific values. 
+To add a rule, you'll need a match pattern (regular expression) and a rule type
+as well as 1 to 3 fields you want to set with specific values.
+
+The rule type specifies when the rule will be used. It can apply to the column
+headers in your file (for instance to map transaction_date to date) or a specific
+column, such as 'description' so that only the 'description' rules get applied to the 
+description column in your file, while the 'category' rules get applied to the category
+column.
 
 For example:
 Regular Expression: /\\sPhilly\\s/
+Type: header
 1) Field: city , Value: Philadelphia
 2) Field: state , Value: PA                   (optional - only one field/value pair is required for a given match pattern)
 3) Field: reasonable location , Value: true   (optional - you can set up to 3 field/value pairs for a given match pattern)
@@ -120,9 +128,15 @@ input
   def add_rule
     puts ADD_RULE_MSG.colorize :yellow
     regex = Regexp.new(gets.chomp)
+    rule_type = gets.chomp
     fields_and_values = get_fields_and_values
     @rule = Rule.new
-    @rule.add(regex, fields_and_values)
+    show_rule_preview(regex, rule_type, fields_and_values)
+    if save?
+      @rule.add(regex, rule_type, fields_and_values)
+    else
+      puts "Rule abandoned. Enter 'add_rule' to start again"
+    end
   end
 
   def view_rules
@@ -133,31 +147,51 @@ input
 
   end
 
+  # Manipulate headers
+  def add_header
+    puts 'Enter match pattern.'
+    pattern = Regexp.new(gets.chomp)
+    puts 'Enter replacement column header'
+    new_header = gets.chomp
+    header = Header.new.add(pattern, new_header)
+    puts "Header #{new_header} will now replace any headers that match the pattern #{pattern}"
+  end
 
   # Do work
   def process_input_file
-    input_file = Klean.new(@settings.input_file)
-    input_file.import
+    @input_file = Klean.new(@settings.input_file)
+    @input_file.import
 
-    rule = Rule.new
-    rules = rule.get_all_rules
-    input_file.apply_rules(rules)
+    new_headers = @input_file.clean_headers
+    new_headers.each { |header| @input_file.clean_column(header)}
 
-    clean_transactions = input_file.klean_transactions
-    output = CsvOutput.new(@settings.output_file, clean_transactions)
+    @input_file.unify_debits_and_credits
+    print_preview
+  end
+
+  def print_preview
+    @input_file.puts_data
+  end
+
+  def print_to_csv
+    output = CsvOutput.new(@settings.output_file, @input_file.klean_transactions)
     output.create_csv
-
-    input_file
-    input_file.puts_data
   end
 
   private
 
-  # def method_missing(m)
-  #   puts "Hmm, don't recognize that command... Try again?"
-  #   help
-  #   run_cli
-  # end
+  def show_rule_preview(regex, rule_type, fields_and_values)
+    puts "Here's the rule you're about to save:"
+    rule_type == 'header' ? target = rule_type : target = 'transaction'
+    puts "For any #{target} with a #{rule_type} that matches the pattern #{regex}:"
+    fields_and_values.each_pair { |k, v| puts "Set #{k} to #{v}" }
+  end
+
+  def save?
+    puts 'Save rule? (y/n)'
+    response = gets.chomp.downcase
+    response == 'y'
+  end
 
   def get_input_dir
     puts DIR_MSG
